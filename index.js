@@ -18,20 +18,32 @@ client.initialize();
 client.on('message',async message => {
     const content=message.body;
     if(content === '.commands') {
-		message.reply(message.from,`
-         hy
-        .ping
-        .meme
+		message.reply(`
+        (*List of commands to use*)
+        >.hello - calls out the bot.
+        >.joke - generate random jokes.
+        >.meme - generates random memes.
+        >.goodnight - sleeps the bot.
         `);
 	}
-    if(content === 'hy') {
-        message.reply('hy too, I am available...speak.');
+    if(content === '.hello') {
+        message.reply(`
+        Hello, Imran is not available...you are talking to his chatbot.
+        my name is Antonne💀..To proceed type *.commands*
+        `);
     }
-	if(content === '.ping') {
-		client.sendMessage(message.from,'pong');
-	}
+    if(content === '.goodnight') {
+        message.reply(`
+        What the fuck do you think you are?...i go sleep when i want to!!
+        *LOSER🤣🤣*
+        `);
+    }
 	if(content === '.meme') {
         const meme=await axios("https://meme-api.herokuapp.com/gimme").then(res=>res.data);
 		client.sendMessage(message.from,await MessageMedia.fromUrl(meme.url));
-	}
+	} else if(content === '.joke') {
+        const joke=await axios("").then(res=>res.data);
+        const jokeMsg=await client.sendMessage(message.from,joke.setup||joke.joke);
+        if(joke.delivery) setTimeout(()=>{jokeMsg.reply(joke.delivery)},5000)
+    }
 });
