@@ -1,6 +1,7 @@
+const { default: axios } = require('axios');
 const qrcode = require('qrcode-terminal');
 
-const { Client, LocalAuth } = require('whatsapp-web.js');
+const { Client, LocalAuth, MessageMedia } = require('whatsapp-web.js');
 const client = new Client({
     authStrategy: new LocalAuth()
 });
@@ -14,8 +15,23 @@ client.on('ready', () => {
 });
 
 client.initialize();
-client.on('message', message => {
-	if(message.body === '.ping') {
+client.on('message',async message => {
+    const content=message.body;
+    if(content === '.commands') {
+		message.reply(message.from,`
+         hy
+        .ping
+        .meme
+        `);
+	}
+    if(content === 'hy') {
+        message.reply('hy too, I am available...speak.');
+    }
+	if(content === '.ping') {
 		client.sendMessage(message.from,'pong');
+	}
+	if(content === '.meme') {
+        const meme=await axios("https://meme-api.herokuapp.com/gimme").then(res=>res.data);
+		client.sendMessage(message.from,await MessageMedia.fromUrl(meme.url));
 	}
 });
