@@ -6,12 +6,12 @@ const cors=require('cors');
 const app=express();
 app.use(cors());
 
-const { Client, LocalAuth, MessageMedia } = require('whatsapp-web.js');
 
 const port=process.env.PORT||5000;
 const server=app.listen(port,()=>{
 console.log(`Server running on port ${port}`);
-    const $server=new Client(server,{
+const { Client, LocalAuth, MessageMedia } = require('whatsapp-web.js');
+const $server=new Client({
         authStrategy: new LocalAuth()
     });
     $server.on('qr', qr => {
@@ -61,10 +61,10 @@ console.log(`Server running on port ${port}`);
             try {
                 message.react('😩');
                 const joke=await axios("https://v2.jokeapi.dev/joke/Any?safe-mode").then(res=>res.data);
-                const jokeMsg=await client.sendMessage(message.from,joke.setup||joke.joke);
+                const jokeMsg=await $server.sendMessage(message.from,joke.setup||joke.joke);
                 if(joke.delivery) setTimeout(()=>{jokeMsg.reply(joke.delivery)},5000);
             } catch (error) {
-                client.sendMessage(message.from,'Try next time🤣');
+                $server.sendMessage(message.from,'Try next time🤣');
             }
         }
     });
