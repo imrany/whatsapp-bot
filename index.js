@@ -10,11 +10,7 @@ const port=process.env.PORT||5000;
 app.listen(port,()=>{
 console.log(`Server running on port ${port}`);
 const { Client, MessageMedia } = require('whatsapp-web.js');
-const $server=new Client({
-    puppeteer:{
-        args:['--no-sandbox','--disable-setuid-sandbox']
-    }
-    });
+const $server=new Client();
     $server.on('qr', qr => {
         console.log(qr)
        //qrcode.generate(qr, {small: true});
