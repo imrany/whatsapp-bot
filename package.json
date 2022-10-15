@@ -9,7 +9,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "devDependencies": {
+  "dependencies": {
     "nodemon": "^2.0.20",
     "express": "^4.18.1",
     "whatsapp-web.js": "^1.17.1",
