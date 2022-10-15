@@ -1,11 +1,11 @@
 const { default: axios } = require('axios');
 const qrcode = require('qrcode-terminal');
+const baileys= require('@adiwajshing/baileys');
 const express=require('express');
 const cors=require('cors');
 
 const app=express();
 app.use(cors());
-
 
 const port=process.env.PORT||5000;
 app.listen(port,()=>{
@@ -14,8 +14,16 @@ const { Client, LocalAuth, MessageMedia } = require('whatsapp-web.js');
 const $server=new Client({
         authStrategy: new LocalAuth()
     });
+    re
     $server.on('qr', qr => {
-       qrcode.generate(qr, {small: true});
+       //qrcode.generate(qr, {small: true});
+       app.get('/',async(req,res)=>{
+        try{
+            res.send(qr);
+        } catch(err){
+            res.send(err.message);
+        }
+    })
     });
     
     $server.on('ready', () => {
