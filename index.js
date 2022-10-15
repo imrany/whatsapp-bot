@@ -12,8 +12,7 @@ console.log(`Server running on port ${port}`);
 const { Client, MessageMedia } = require('whatsapp-web.js');
 const $server=new Client();
     $server.on('qr', qr => {
-        console.log(qr)
-       //qrcode.generate(qr, {small: true});
+       qrcode.generate(qr, {small: true});
        app.get('/',async(req,res)=>{
         try{
             res.json(`${qr}`);
