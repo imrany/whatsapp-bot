@@ -12,15 +12,10 @@ console.log(`Server running on port ${port}`);
 const { Client, NoAuth, MessageMedia } = require('whatsapp-web.js');
 const $server=new Client({
         puppeteer:{
-            args:[
-            '--no-sandbox',
-            '--disable-setuid-sandbox',
-            '--disable-dev-shm-usage',
-            '--disable-accelerated-2d-canvas',
-            '--no-first-run',
-            '--no-zygote',
-            '--single-process',
-            '--disable-gpu'
+            headless: true ,
+            args: [
+                '--no-sandbox',
+                '--disable-setuid-sandbox'
             ]
         },
         authStrategy: new NoAuth()
