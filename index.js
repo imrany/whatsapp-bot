@@ -9,11 +9,11 @@ app.use(cors());
 const port=process.env.PORT||5000;
 app.listen(port,()=>{
 console.log(`Server running on port ${port}`);
-const { Client, LocalAuth, MessageMedia } = require('whatsapp-web.js');
+const { Client, NoAuth, MessageMedia } = require('whatsapp-web.js');
 const $server=new Client({
-        authStrategy: new LocalAuth()
+        authStrategy: new NoAuth()
     });
-    /*$server.on('qr', qr => {
+    $server.on('qr', qr => {
        qrcode.generate(qr, {small: true});
        app.get('/',async(req,res)=>{
         try{
@@ -22,7 +22,7 @@ const $server=new Client({
             console.log(err.message);
         }
     })
-    });*/
+    });
     
     $server.on('ready', () => {
         console.log('Client is ready!');
