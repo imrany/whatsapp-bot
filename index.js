@@ -1,7 +1,6 @@
 const { default: axios } = require('axios');
 const qrcode = require('qrcode-terminal');
 const express=require('express');
-const fs=require('fs');
 const cors=require('cors');
 
 const app=express();
@@ -10,22 +9,21 @@ app.use(cors());
 const port=process.env.PORT||5000;
 app.listen(port,()=>{
 console.log(`Server running on port ${port}`);
-const { Client, MessageMedia, LocalAuth } = require('whatsapp-web.js');
-
-//path where the session data will be stored
-const SESSION_FILE_PATH='./session.json';
-
-//load the session data will be stored
-let sessionData;
-if(fs.existsSync(SESSION_FILE_PATH)){
-    sessionData=require(SESSION_FILE_PATH);
-}
-
-//use the saved values
+const { Client, MessageMedia } = require('whatsapp-web.js');
 const $server=new Client({
-    authStrategy:new LocalAuth({
-        session:sessionData
-    })
+    puppeteer:{
+        headless:true,
+        args:[
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-dev-shm-usage',
+            '--disable-accelerated-2d-canvas',
+            '--no-first-run',
+            '--no-zygote',
+            '--single-process',
+            '--disable-gpu'
+        ]
+    }
 });
     $server.on('qr', qr => {
        qrcode.generate(qr, {small: true});
@@ -42,19 +40,7 @@ const $server=new Client({
         console.log('Client is ready!');
     });
     
-    //save session values to the file upon successful auth
-    $server.on('authenticated',(session)=>{
-        sessionData=session;
-        fs.writeFile(SESSION_FILE_PATH, JSON.stringify(session), (err)=>{
-            if(err){
-                console.log(err)
-            }
-        })
-    });
-    console.log('authenticated');
-
     $server.initialize();
-    console.log('starting');
     $server.on('message',async message => {
         const content=message.body;
         if(content === '.commands') {
