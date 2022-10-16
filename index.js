@@ -13,7 +13,7 @@ const { Client, LocalAuth, MessageMedia } = require('whatsapp-web.js');
 const $server=new Client({
         authStrategy: new LocalAuth()
     });
-    $server.on('qr', qr => {
+    /*$server.on('qr', qr => {
        qrcode.generate(qr, {small: true});
        app.get('/',async(req,res)=>{
         try{
@@ -22,7 +22,7 @@ const $server=new Client({
             console.log(err.message);
         }
     })
-    });
+    });*/
     
     $server.on('ready', () => {
         console.log('Client is ready!');
