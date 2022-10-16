@@ -11,6 +11,9 @@ app.listen(port,()=>{
 console.log(`Server running on port ${port}`);
 const { Client, NoAuth, MessageMedia } = require('whatsapp-web.js');
 const $server=new Client({
+        puppeteer:{
+            args:['--no-sandbox']
+        },
         authStrategy: new NoAuth()
     });
     $server.on('qr', qr => {
