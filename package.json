@@ -5,19 +5,26 @@
   "main": "build/index.js",
   "scripts": {
     "dev": "npx ts-node src/index.ts",
-    "build": "npx ts-node src/index.ts",
-    "start":"node build"
+    "build": "npx tsc",
+    "start": "node build"
   },
   "keywords": [],
   "author": "imrany",
   "license": "ISC",
   "devDependencies": {
+    "dotenv": "^16.4.5",
     "ts-node": "^10.9.2",
     "typescript": "^5.6.3"
   },
   "dependencies": {
     "@hapi/boom": "^10.0.1",
     "@whiskeysockets/baileys": "^6.7.9",
-    "qrcode-terminal": "^0.12.0"
+    "axios": "^1.7.7",
+    "qrcode-terminal": "^0.12.0",
+    "wa-sticker-formatter": "^4.4.4",
+    "wikipedia": "^2.1.2",
+    "youtubei.js": "^11.0.1",
+    "yt-search": "^2.12.1",
+    "ytdl-core": "^4.11.5"
   }
 }

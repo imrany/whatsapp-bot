@@ -1,9 +1,21 @@
 import makeWASocket, { BufferJSON, DisconnectReason, useMultiFileAuthState } from '@whiskeysockets/baileys'
 import { Boom } from '@hapi/boom'
+import { fileURLToPath } from 'url';
+import axios from 'axios';
+import { config } from "dotenv";
+config();
+import path from "path";
 import * as fs from 'fs'
 
+const API_URL=process.env.API_URL
 
 async function connectToWhatsApp () {
+    // Set up the file for storing auth state
+    // const __filename = fileURLToPath(import.meta.url);
+    // const __dirname = path.dirname(__filename);
+    // const authFilePath = path.join(__dirname, 'auth_info.json');
+    // const { state, saveState } = useSingleFileAuthState(authFilePath);
+
     // utility function to help save the auth state in a single folder
     // this function serves as a good guide to help write auth & key states for SQL/no-SQL databases, which I would recommend in any production grade system
     const { state, saveCreds } = await useMultiFileAuthState('auth_info_baileys')
@@ -35,6 +47,7 @@ async function connectToWhatsApp () {
      // Event: Messages received
     sock.ev.on('messages.upsert', async(m)=> {
         const msg = m.messages[0];
+        // const owner=msg.key.fromMe
         if (!msg.message) return; // Ignore system messages
 
         const from:any = msg.key.remoteJid;
@@ -51,9 +64,24 @@ async function connectToWhatsApp () {
         if (content) {
             if (!isGroup) {
               // Send a reply for private messages
-              await sock.sendMessage(from, {
-                text: `You said: "${content}"`,
-              });
+              try{
+                const request=axios.post(`${API_URL}/api/md`, {
+                  prompt: content
+                })
+                const response=(await request).data
+                if(response.error){
+                  console.log(response.error)
+                  await sock.sendMessage(from, {
+                    text: `Error: ${response.error}`,
+                  });
+                }else{
+                  await sock.sendMessage(from, {
+                    text: response,
+                  });
+                }
+              }catch(error:any){
+                console.log(error.message)
+              }
             } else {
               // Example for groups: reply only to tagged messages 
               const owner:any=sock.user //owner is the bot whatsapp account
@@ -64,8 +92,6 @@ async function connectToWhatsApp () {
               }
             }
         }
-
-        await sock.sendMessage(m.messages[0].key.remoteJid!, { text: 'Hello there!' })
     })
     return sock;
 }
