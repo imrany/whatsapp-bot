@@ -4,6 +4,7 @@ import { Boom } from '@hapi/boom'
 import { config } from "dotenv";
 import { sessionName } from "../../config.json"
 import path from "path";
+import * as fs from "fs";
 import { checkCommandAndRespond } from './commands';
 config();
 
@@ -51,6 +52,13 @@ export async function connectToWhatsApp () {
         sock.logout()
       } else if (reason === DisconnectReason.loggedOut) {
         console.log(`Device Logged Out, Please Delete ${sessionName}-session and Scan Again.`)
+        fs.rm(`${path.resolve(`${sessionName}-session`)}`, { recursive: true }, (err) => {
+          if (err) {
+            console.error('Error deleting folder:', err);
+          } else {
+            console.log('Folder and contents deleted successfully');
+          }
+        })
         sock.logout()
       } else if (reason === DisconnectReason.restartRequired) {
         console.log('Restart Required, Restarting...')
