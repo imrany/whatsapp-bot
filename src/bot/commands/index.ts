@@ -1,5 +1,7 @@
 import { downloadContentFromMessage, getContentType } from "@whiskeysockets/baileys";
+// @ts-ignore
 import * as TD from "better-tord";
+// @ts-ignore
 import { uploadByBuffer, uploadByUrl } from "telegraph-uploader";
 import { adviceHandle, AiHandle, definitionHandle, deleteBotMsgHandle, factHandle, getGIFHandle, getLyricsHandle, githubSearchHandle, googleSearchHandle, helpHandle, makeStickerHandle, reactionHandle, sadCatHandle, searchImageHandle, showTypesOfReactionsHandle, stickerToMedia, wikipediaHandle, downloadYtAudioHandle, ytsearchHandle, playYtAudioHandle, downloadYtVideoHandle } from "../handles";
 

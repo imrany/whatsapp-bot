@@ -5,6 +5,7 @@ import { config } from "dotenv";
 import * as fs from "fs";
 import { downloadContentFromMessage, getContentType } from '@whiskeysockets/baileys';
 import Sticker, { StickerTypes } from 'wa-sticker-formatter';
+// @ts-ignore
 import * as gis from "g-i-s";
 import yts from "yt-search";
 import { GoogleGenerativeAI } from "@google/generative-ai";
