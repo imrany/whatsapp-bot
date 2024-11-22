@@ -14,7 +14,6 @@ import wiki from 'wikipedia';
 config()
 
 const client = new Client();
-const API_URL=process.env.API_URL
 let apiKey:any=process.env.API_KEY;
 const genAI = new GoogleGenerativeAI(apiKey);
 
