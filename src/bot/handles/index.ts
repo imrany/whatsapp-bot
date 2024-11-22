@@ -7,6 +7,7 @@ import { downloadContentFromMessage, getContentType } from '@whiskeysockets/bail
 import Sticker, { StickerTypes } from 'wa-sticker-formatter';
 import * as gis from "g-i-s";
 import yts from "yt-search";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { writeFile } from 'fs/promises';
 import ytdl from 'ytdl-core';
 import wiki from 'wikipedia';
@@ -14,25 +15,21 @@ config()
 
 const client = new Client();
 const API_URL=process.env.API_URL
+let apiKey:any=process.env.API_KEY;
+const genAI = new GoogleGenerativeAI(apiKey);
+
 export async function AiHandle(text:string, from:string, sock:any,msg:any) {
   try {
-    const response = await axios.post(`${API_URL}/api/md`, { prompt: text });
-    const data = response.data;
-  
-    if (data.error) {
-      console.log(data.error);
-      await sock.sendMessage(from, {
-        text: `Error: ${data.error}`,
-      }, {
-        quoted: msg
-      });
-    } else {
-      await sock.sendMessage(from, {
-        text: data,
-      }, {
-        quoted: msg
-      });
-    }
+    const model = genAI.getGenerativeModel({ model: "gemini-pro"});
+    const result = await model.generateContent(text);
+    const response = result.response;
+    let markdown=response.text()
+
+    await sock.sendMessage(from, {
+      text: markdown,
+    }, {
+      quoted: msg
+    });
   } catch (error:any) {
     console.error('Request failed:', error);
     await sock.sendMessage(from, {
