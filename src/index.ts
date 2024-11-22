@@ -1,11 +1,12 @@
 import makeWASocket, { BufferJSON, DisconnectReason, useMultiFileAuthState } from '@whiskeysockets/baileys'
 import { Boom } from '@hapi/boom'
 import { fileURLToPath } from 'url';
+import { sendRequestAndHandleResponse } from './handler';
 import axios from 'axios';
 import { config } from "dotenv";
-config();
 import path from "path";
 import * as fs from 'fs'
+config();
 
 const API_URL=process.env.API_URL
 
@@ -47,7 +48,7 @@ async function connectToWhatsApp () {
      // Event: Messages received
     sock.ev.on('messages.upsert', async(m)=> {
         const msg = m.messages[0];
-        // const owner=msg.key.fromMe
+        const bot=msg.key.fromMe
         if (!msg.message) return; // Ignore system messages
 
         const from:any = msg.key.remoteJid;
@@ -59,38 +60,25 @@ async function connectToWhatsApp () {
         msg.message.extendedTextMessage?.text ||
         msg.message.imageMessage?.caption;
 
-        console.log('Message received:', content);
+        console.log( `From: ${from}`, `bot: ${bot}`,`Message received: ${content}`);
         // auto reply
-        if (content) {
-            if (!isGroup) {
-              // Send a reply for private messages
-              try{
-                const request=axios.post(`${API_URL}/api/md`, {
-                  prompt: content
-                })
-                const response=(await request).data
-                if(response.error){
-                  console.log(response.error)
+        if(!bot){
+          if (content) {
+              if (!isGroup) {
+                // Send a reply for private messages
+               await  sendRequestAndHandleResponse(content, from, sock);
+              } else {
+                // Example for groups: reply only to tagged messages 
+                const owner:any=sock.user //owner is the bot whatsapp account
+                if (msg.message.extendedTextMessage?.contextInfo?.mentionedJid?.includes(owner.id)) {
                   await sock.sendMessage(from, {
-                    text: `Error: ${response.error}`,
-                  });
-                }else{
-                  await sock.sendMessage(from, {
-                    text: response,
+                    text: `Hello! I am a bot. You mentioned me.`,
                   });
                 }
-              }catch(error:any){
-                console.log(error.message)
               }
-            } else {
-              // Example for groups: reply only to tagged messages 
-              const owner:any=sock.user //owner is the bot whatsapp account
-              if (msg.message.extendedTextMessage?.contextInfo?.mentionedJid?.includes(owner.id)) {
-                await sock.sendMessage(from, {
-                  text: `Hello! I am a bot. You mentioned me.`,
-                });
-              }
-            }
+          }
+        }else{
+          console.log("Texting yourself")
         }
     })
     return sock;
