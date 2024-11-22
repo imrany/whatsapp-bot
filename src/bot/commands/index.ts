@@ -5,6 +5,7 @@ import { adviceHandle, AiHandle, definitionHandle, deleteBotMsgHandle, factHandl
 
 export async function checkCommandAndRespond(m:any, sock:any) {
     const msg = m.messages[0]; // received message
+    const isbot=m.messages[0].key.fromMe //true or false
     const from:any = msg.key.remoteJid; // 254700000000@s.whatsapp.net
     const type:any = getContentType(msg.message)
     const senderName = msg.pushName
@@ -236,7 +237,7 @@ export async function checkCommandAndRespond(m:any, sock:any) {
             }
             break;
         default:
-            if (content) {
+            if (content&&!isbot) {
                 reply(`Hello! I'm not available at the moment.\n Please get back to me later.`)
             }
             break;
