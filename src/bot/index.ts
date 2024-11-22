@@ -1,6 +1,6 @@
-import makeWASocket, { BufferJSON, DisconnectReason, getContentType, useMultiFileAuthState } from '@whiskeysockets/baileys'
+import makeWASocket, { DisconnectReason, getContentType, useMultiFileAuthState } from '@whiskeysockets/baileys'
 import { Boom } from '@hapi/boom'
-import { fileURLToPath } from 'url';
+// import { fileURLToPath } from 'url';
 import { config } from "dotenv";
 import { sessionName } from "../../config.json"
 import path from "path";
@@ -98,24 +98,24 @@ export async function connectToWhatsApp () {
 
     console.log( `From: ${from}`, `isbot: ${isbot}`,`Type: ${type}`,`Message received: ${content}`);
     // auto reply
-    if(!isbot){
+    // if(!isbot){
       if (content) {
         if (!isGroup) {
           // Send a reply for private messages
           checkCommandAndRespond(m,sock)
         } else {
           // Example for groups: reply only to tagged messages 
-          const owner:any=sock.user //owner is the bot whatsapp account
-          if (msg.message.extendedTextMessage?.contextInfo?.mentionedJid?.includes(owner.id)) {
+          const bot:any=sock.user //bot's whatsapp account
+          if (msg.message.extendedTextMessage?.contextInfo?.mentionedJid?.includes(bot.id)) {
             await sock.sendMessage(from, {
-              text: `Hello! I am a bot. You mentioned me.`,
+              text: `Hello! I'm not available.\n You mentioned me.`,
             });
           }
         }
       }
-    }else{
-      console.log("Texting yourself")
-    }
+    // }else{
+    //   console.log("Texting yourself")
+    // }
   })
   return sock;
 }

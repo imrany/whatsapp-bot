@@ -1,12 +1,13 @@
 import { downloadContentFromMessage, getContentType } from "@whiskeysockets/baileys";
 import * as TD from "better-tord";
 import { uploadByBuffer, uploadByUrl } from "telegraph-uploader";
-import { AiHandle, deleteBotMsgHandle, getLyricsHandle, githubSearchHandle, googleSearchHandle, makeStickerHandle, reactionHandle, sadCatHandle, searchImageHandle, stickerToMedia, ytsearchHandle } from "../handles";
+import { adviceHandle, AiHandle, definitionHandle, deleteBotMsgHandle, factHandle, getGIFHandle, getLyricsHandle, githubSearchHandle, googleSearchHandle, helpHandle, makeStickerHandle, reactionHandle, sadCatHandle, searchImageHandle, showTypesOfReactionsHandle, stickerToMedia, wikipediaHandle, downloadYtAudioHandle, ytsearchHandle, playYtAudioHandle, downloadYtVideoHandle } from "../handles";
 
 export async function checkCommandAndRespond(m:any, sock:any) {
     const msg = m.messages[0]; // received message
     const from:any = msg.key.remoteJid; // 254700000000@s.whatsapp.net
     const type:any = getContentType(msg.message)
+    const senderName = msg.pushName
     const quotedType = getContentType(msg.message?.extendedTextMessage?.contextInfo?.quotedMessage) || null
     const botId = sock.user.id.includes(':') ? sock.user.id.split(':')[0] + '@s.whatsapp.net' : sock.user.id
     console.log(`Bot id: ${botId}, Type: ${type}, quotedType:${quotedType}`)
@@ -175,13 +176,69 @@ export async function checkCommandAndRespond(m:any, sock:any) {
         case 'ytsearch':
         case 'yts': {
                 if (!text) {
-                    reply('Crownus👽\n Provide a search term!')
+                    reply('Provide a search term!')
                     return;
                 }
                 await ytsearchHandle(text,reply)
             }
             break;
+        case 'play': {
+                if (!text) {
+                    reply('Provide a search term!')
+                    return;
+                }
+                await playYtAudioHandle(text,from,sock,msg,reply, args)
+            }
+            break;
+        case 'getgif':
+        case 'gify': {
+                if (!text) return reply("No query provided!")
+                await getGIFHandle(text,from,sock,msg,reply)
+            }
+            break;    
+        case 'wiki':
+        case 'wikipedia': {
+            if (!text) return reply(`Provide the term to search`)
+                await wikipediaHandle(text,reply)
+            }
+            break;
+        case 'fact':{
+                await factHandle(reply)
+            }
+            break;
+        case "reaction": {
+                await showTypesOfReactionsHandle(senderName,reply)
+            }
+            break;
+        case 'define':
+        case 'dictionary': {
+                if (!text) return reply(`Please provide me the search term.`)
+                    await definitionHandle(text,reply)
+            }
+            break;
+        case 'advice':{
+                await adviceHandle(reply)
+            }
+            break;
+        case 'ytmp4':
+        case 'ytvideo':
+        case 'ytv':
+                await downloadYtVideoHandle(text,from,sock,msg,reply, args)
+            break;
+        case 'ytmp3':
+        case 'ytaudio':
+        case 'yta': {
+                await downloadYtAudioHandle(text,from,sock,msg,reply, args)
+            }
+            break    
+        case 'help':{
+                await helpHandle(senderName,reply)
+            }
+            break;
         default:
+            if (content) {
+                reply(`Hello! I'm not available at the moment.\n Please get back to me later.`)
+            }
             break;
     }
 }

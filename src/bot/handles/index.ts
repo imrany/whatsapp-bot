@@ -8,6 +8,8 @@ import Sticker, { StickerTypes } from 'wa-sticker-formatter';
 import * as gis from "g-i-s";
 import yts from "yt-search";
 import { writeFile } from 'fs/promises';
+import ytdl from 'ytdl-core';
+import wiki from 'wikipedia';
 config()
 
 const client = new Client();
@@ -421,7 +423,7 @@ export async function searchImageHandle(text:string, from:string, sock:any, msg:
 export async function ytsearchHandle(text:string, reply:any) {
   const { videos } = await yts(text);
   if (!videos || videos.length <= 0) {
-      reply(`Crownus👽\n Can't find a match : *${text}*!!`)
+      reply(`Can't find a match : *${text}*!!`)
       return;
   }
   const length = videos.length < 10 ? videos.length : 10;
@@ -431,4 +433,322 @@ export async function ytsearchHandle(text:string, reply:any) {
   }
   reply(tex)
   return;
+}
+
+export async function playYtAudioHandle(text:string,from:string,sock:any,msg:any,reply:any, args:any){
+  try {
+    const { videos } = await yts(text);
+    if (!videos || videos.length <= 0) {
+        reply(`Can't find a match : *${args[0]}*!!`)
+        return;
+    }
+    let urlYt = videos[0].url
+    let infoYt = await ytdl.getInfo(urlYt);
+    //30 MIN
+    let period:any=infoYt.videoDetails.lengthSeconds
+    if (period >= 1800) {
+      reply(`Audio is too big!`);
+      return;
+    }
+    const getRandom = (ext:string) => {
+      return `${Math.floor(Math.random() * 10000)}${ext}`;
+    };
+    let titleYt = infoYt.videoDetails.title;
+    let randomName = getRandom(".mp3");
+    const stream = ytdl(urlYt, {
+      filter: (info) => info.audioBitrate == 160 || info.audioBitrate == 128,
+    }).pipe(fs.createWriteStream(`./${randomName}`));
+    console.log("Audio downloading ->", urlYt);
+    await new Promise((resolve, reject) => {
+      stream.on("error", reject);
+      stream.on("finish", resolve);
+    });
+    
+    let stats = fs.statSync(`./${randomName}`);
+    let fileSizeInBytes = stats.size;
+    // Convert the file size to megabytes (optional)
+    let fileSizeInMegabytes = fileSizeInBytes / (1024 * 1024);
+    console.log("Audio downloaded ! Size: " + fileSizeInMegabytes);
+    if (fileSizeInMegabytes <= 40) {
+      //sendFile(from, fs.readFileSync(`./${randomName}`), msg, { audio: true, jpegThumbnail: (await getBuffer(dl.meta.image)).buffer, unlink: true })
+      await sock.sendMessage(
+        from, {
+          document: fs.readFileSync(`./${randomName}`),
+          mimetype: "audio/mpeg",
+          fileName: titleYt + ".mp3",
+        }, {
+          quoted: msg
+        }
+      );
+    } else {
+      reply(`File size bigger than 40mb.`);
+    }
+    fs.unlinkSync(`./${randomName}`);
+  } catch (e:any) {
+    reply(e.toString())
+  }
+}
+
+export async function getGIFHandle(text:string,from:string,sock:any,msg:any,reply:any){
+  try {
+    let { data: gi } = await axios.get(`https://g.tenor.com/v1/search?q=${text}&key=LIVDSRZULELA&limit=8`)
+    sock.sendMessage(from, {
+      video: {
+        url: gi.results?.[Math.floor(Math.random() * gi.results.length)]?.media[0]?.mp4?.url
+      },
+      caption: "Crownus👽\nHere you go",
+      gifPlayback: true
+    }, {
+      quoted: msg
+    })
+  } catch (err:any) {
+    reply("Couldn't find")
+    console.log(err)
+  }
+}
+
+export async function wikipediaHandle(text:string,reply:any){
+  try {
+    const con = await wiki.summary(text);
+    const tex = `Title:~> ${con.title}
+          
+Desc:~> ${con.description}
+
+Summary:~> ${con.extract}
+
+URL:~> ${con.content_urls.mobile.page}
+`
+    reply(tex)
+  } catch (err:any) {
+    console.log(err)
+    return reply(`Your text isn't valid`)
+  }
+}
+
+export async function factHandle(reply:any){
+  try {
+    const { data:response } =await axios.get(`https://nekos.life/api/v2/fact`)
+    console.log(response);
+    const tet = `📛Fact:~> ${response.fact}`
+    reply(tet)
+  } catch (error:any) {
+    reply(`Cannot get a fact`)
+  }
+}
+
+export async function showTypesOfReactionsHandle(senderName:string,reply:any) {
+  reply(` Hi ${senderName}, I'm ${sessionName}👽 
+
+    📛 *Reaction List*
+    
+    cry
+    kiss
+    bully
+    hug
+    lick
+    cuddle
+    pat
+    smug
+    highfive
+    bonk
+    yeet
+    blush
+    wave
+    smile
+    handhold
+    nom
+    bite
+    glomp
+    kill
+    slap
+    cringe
+    kick
+    wink
+    happy
+    poke
+    punch
+    dance
+    
+    -  _Let's React_ 🔰
+    
+    Support us by following us on GitHub:
+    
+    https://github.com/imrany/whatsapp-bot\n
+    Support me through Mpesa Till number: 9655689
+    `)
+}
+
+export async function definitionHandle(text:string,reply:any) {
+  try {
+    let def = await axios.get(`http://api.urbandictionary.com/v0/define?term=${text}`)
+    if (!def) return reply(`${text} isn't a valid text`)
+    const defi = `
+Word:~> ${text}
+
+Definition:~> ${def.data.list[0].definition
+.replace(/\[/g, "")
+.replace(/\]/g, "")}
+
+💭 Example:~> ${def.data.list[0].example
+.replace(/\[/g, "")
+.replace(/\]/g, "")}
+       `
+    reply(defi)
+  } catch (err:any) {
+    console.log(err.toString())
+    return reply("Sorry could not find the definition!")
+  }
+}
+
+export async function adviceHandle(reply:any) {
+  await axios
+  .get(`https://api.adviceslip.com/advice`)
+  .then((response) => {
+      // console.log(response);
+      const tet = `Advice for you:~> ${response.data.slip.advice}`
+      reply(tet)
+  })
+  .catch((err) => {
+      reply(`🔍 Error: ${err}`)
+  })
+}
+
+export async function downloadYtVideoHandle(text:string,from:string,sock:any,msg:any,reply:any,args:any) {
+  const prefix="."
+  const getRandom = (ext:string) => {
+    return `${Math.floor(Math.random() * 10000)}${ext}`;
+  };
+  if (args.length === 0) {
+    reply(`URL is empty! \nSend ${prefix}ytv url`);
+    return;
+  }
+  try {
+    let urlYt = args[0];
+    if (!urlYt.startsWith("http")) {
+      reply(`Give youtube link!`);
+      return;
+    }
+    let infoYt = await ytdl.getInfo(urlYt);
+    //30 MIN
+    const period:any=infoYt.videoDetails.lengthSeconds
+    if (period >= 1800) {
+      reply(`Video file too big!`);
+      return;
+    }
+    let titleYt = infoYt.videoDetails.title;
+    let randomName = getRandom(".mp4");
+    
+    const stream = ytdl(urlYt, { filter: (info) => info.itag == 22 || info.itag == 18,}).pipe(fs.createWriteStream(`./${randomName}`));
+    console.log("Video downloading ->", urlYt);
+    await new Promise((resolve, reject) => {
+      stream.on("error", reject);
+      stream.on("finish", resolve);
+    });
+    
+    let stats = fs.statSync(`./${randomName}`);
+    let fileSizeInBytes = stats.size;
+    // Convert the file size to megabytes (optional)
+    let fileSizeInMegabytes = fileSizeInBytes / (1024 * 1024);
+    console.log("Video downloaded ! Size: " + fileSizeInMegabytes);
+    if (fileSizeInMegabytes <= 100) {
+      sock.sendMessage(
+        from, {
+          video: fs.readFileSync(`./${randomName}`),
+          caption: `${titleYt}`,
+        }, {
+          quoted: msg
+        }
+      );
+    } else {
+      reply(`File size bigger than 40mb.`);
+    }
+    
+    fs.unlinkSync(`./${randomName}`);
+  } catch (e:any) {
+    reply(e.toString())
+  }
+}
+
+export async function downloadYtAudioHandle(text:string,from:string,sock:any,msg:any,reply:any,args:any) {
+  const prefix="."
+  const getRandom = (ext:string) => {
+    return `${Math.floor(Math.random() * 10000)}${ext}`;
+  };
+  if (args.length === 0) {
+      reply(`URL is empty! \nSend ${prefix}yta url`);
+      return;
+  }
+  try {
+    let urlYt = args[0];
+    if (!urlYt.startsWith("http")) {
+        reply(`Give youtube link!`);
+        return;
+    }
+    let infoYt = await ytdl.getInfo(urlYt);
+    const period:any=infoYt.videoDetails.lengthSeconds
+    //30 MIN
+    if (period >= 1800) {
+      reply(`Video too big!`);
+      return;
+    }
+    let titleYt = infoYt.videoDetails.title;
+    let randomName = getRandom(".mp3");
+    const stream = ytdl(urlYt, { filter: (info) => info.audioBitrate == 160 || info.audioBitrate == 128, }).pipe(fs.createWriteStream(`./${randomName}`));
+    console.log("Audio downloading ->", urlYt);
+    // reply("Downloading.. This may take upto 5 min!");
+    await new Promise((resolve, reject) => {
+      stream.on("error", reject);
+      stream.on("finish", resolve);
+    });
+    
+    let stats = fs.statSync(`./${randomName}`);
+    let fileSizeInBytes = stats.size;
+    // Convert the file size to megabytes (optional)
+    let fileSizeInMegabytes = fileSizeInBytes / (1024 * 1024);
+    console.log("Audio downloaded ! Size: " + fileSizeInMegabytes);
+    if (fileSizeInMegabytes <= 40) {
+      //sendFile(from, fs.readFileSync(`./${randomName}`), msg, { audio: true, jpegThumbnail: (await getBuffer(dl.meta.image)).buffer, unlink: true })
+      await sock.sendMessage(
+        from, {
+          document: fs.readFileSync(`./${randomName}`),
+          mimetype: "audio/mpeg",
+          fileName: titleYt + ".mp3",
+        }, {
+          quoted: msg
+        }
+      );
+    } else {
+      reply(`File size bigger than 40mb.`);
+    }
+    fs.unlinkSync(`./${randomName}`);
+  } catch (e:any) {
+      reply(e.toString())
+  }
+}
+
+export async function helpHandle(senderName:string,reply:any){
+  try {
+    reply(`Hi ${senderName}, I'm ${sessionName}👽 
+    🤖 *Command List* 🤖
+
+ℹ️ *Mods*:-
+
+~> \`\`\`ytsearch, play, ytaudio, lyrics, ytvideo\`\`\`\
+\n\n⭐️ *Fun*:-
+
+~> \`\`\`reaction, truth, sadcat, dare, advise, fact\`\`\`\
+\n\n💮 *Web*:-
+
+~> \`\`\`githubsearch, github, google, upload, imagesearch, img, define, wikipedia, gify, sticker, image\`\`\`\
+\n\n📛 *Moderation*:-
+
+\n\n📗 *Note*~> Use this bot responsibly, I'm not liable for any misuse and misconduction.
+\nSupport us by following us on GitHub:
+\nhttps://github.com/imrany/whatsapp-bot
+\n Till number: 9655689
+`)
+    return;
+  } catch (e:any) {
+    reply(e.message)
+  }
 }
