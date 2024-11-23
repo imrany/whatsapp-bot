@@ -621,10 +621,19 @@ export async function downloadYtVideoHandle(text:string,from:string,sock:any,msg
   }
   try {
     let urlYt = args[0];
-    if (!urlYt.startsWith("http")) {
-      reply(`Give youtube link!`);
+    const isValidYoutubeUrl = (url:string) => {
+      const ytRegex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.?be)\/.+$/;
+      return ytRegex.test(url);
+    };
+    
+    if (!isValidYoutubeUrl(urlYt)) {
+      reply(`Invalid YouTube link!`);
       return;
     }
+    // if (!urlYt.startsWith("http")) {
+    //   reply(`Give youtube link!`);
+    //   return;
+    // }
     let infoYt = await ytdl.getInfo(urlYt);
     //30 MIN
     const period:any=infoYt.videoDetails.lengthSeconds
@@ -677,10 +686,19 @@ export async function downloadYtAudioHandle(text:string,from:string,sock:any,msg
   }
   try {
     let urlYt = args[0];
-    if (!urlYt.startsWith("http")) {
-        reply(`Give youtube link!`);
-        return;
+    const isValidYoutubeUrl = (url:string) => {
+      const ytRegex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.?be)\/.+$/;
+      return ytRegex.test(url);
+    };
+    
+    if (!isValidYoutubeUrl(urlYt)) {
+      reply(`Invalid YouTube link!`);
+      return;
     }
+    // if (!urlYt.startsWith("http")) {
+    //     reply(`Give youtube link!`);
+    //     return;
+    // }
     let infoYt = await ytdl.getInfo(urlYt);
     const period:any=infoYt.videoDetails.lengthSeconds
     //30 MIN
