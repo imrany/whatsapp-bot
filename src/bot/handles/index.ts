@@ -10,7 +10,7 @@ import * as gis from "g-i-s";
 import yts from "yt-search";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { writeFile } from 'fs/promises';
-import ytdl from 'ytdl-core';
+import ytdl from '@distube/ytdl-core';
 import wiki from 'wikipedia';
 config()
 
