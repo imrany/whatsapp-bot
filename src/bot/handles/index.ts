@@ -14,6 +14,14 @@ import ytdl from '@distube/ytdl-core';
 import wiki from 'wikipedia';
 config()
 
+const ytOptions = {
+  requestOptions: {
+    headers: {
+      cookie: process.env.YT_COOKIES, // Replace this with the cookie you copied
+    },
+  },
+};
+
 const client = new Client();
 let apiKey:any=process.env.API_KEY;
 const genAI = new GoogleGenerativeAI(apiKey);
@@ -440,7 +448,7 @@ export async function playYtAudioHandle(text:string,from:string,sock:any,msg:any
         return;
     }
     let urlYt = videos[0].url
-    let infoYt = await ytdl.getInfo(urlYt);
+    let infoYt = await ytdl.getInfo(urlYt, ytOptions);
     //30 MIN
     let period:any=infoYt.videoDetails.lengthSeconds
     if (period >= 1800) {
@@ -634,7 +642,7 @@ export async function downloadYtVideoHandle(text:string,from:string,sock:any,msg
     //   reply(`Give youtube link!`);
     //   return;
     // }
-    let infoYt = await ytdl.getInfo(urlYt);
+    let infoYt = await ytdl.getInfo(urlYt, ytOptions);
     //30 MIN
     const period:any=infoYt.videoDetails.lengthSeconds
     if (period >= 1800) {
@@ -699,7 +707,7 @@ export async function downloadYtAudioHandle(text:string,from:string,sock:any,msg
     //     reply(`Give youtube link!`);
     //     return;
     // }
-    let infoYt = await ytdl.getInfo(urlYt);
+    let infoYt = await ytdl.getInfo(urlYt, ytOptions);
     const period:any=infoYt.videoDetails.lengthSeconds
     //30 MIN
     if (period >= 1800) {
