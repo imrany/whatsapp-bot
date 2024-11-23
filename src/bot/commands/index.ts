@@ -240,7 +240,7 @@ export async function checkCommandAndRespond(m:any, sock:any) {
             break;
         default:
             if (content&&!isbot) {
-                reply(`Hello! I'm not available at the moment.\n Please get back to me later.`)
+                // reply(`Hello! I'm not available at the moment.\n Please get back to me later.`)
             }
             break;
     }
