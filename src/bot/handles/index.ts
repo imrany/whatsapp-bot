@@ -18,7 +18,7 @@ const cookies:{name:string,value:any}[] = [
   { name: "cookie1", value: process.env.YT_COOKIES },
 ];
 
-
+process.env.YTDL_NO_UPDATE = '1';
 // agent should be created once if you don't want to change your cookie
 const ytOptions = ytdl.createAgent(cookies);
 
