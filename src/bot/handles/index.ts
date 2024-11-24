@@ -14,13 +14,13 @@ import ytdl from '@distube/ytdl-core';
 import wiki from 'wikipedia';
 config()
 
-const ytOptions = {
-  requestOptions: {
-    headers: {
-      cookie: process.env.YT_COOKIES, // Replace this with the cookie you copied
-    },
-  },
-};
+const cookies:{name:string,value:any}[] = [
+  { name: "cookie1", value: process.env.YT_COOKIES },
+];
+
+
+// agent should be created once if you don't want to change your cookie
+const ytOptions = ytdl.createAgent(cookies);
 
 const client = new Client();
 let apiKey:any=process.env.API_KEY;
@@ -448,7 +448,7 @@ export async function playYtAudioHandle(text:string,from:string,sock:any,msg:any
         return;
     }
     let urlYt = videos[0].url
-    let infoYt = await ytdl.getInfo(urlYt, ytOptions);
+    let infoYt = await ytdl.getInfo(urlYt, {agent: ytOptions});
     //30 MIN
     let period:any=infoYt.videoDetails.lengthSeconds
     if (period >= 1800) {
@@ -642,7 +642,7 @@ export async function downloadYtVideoHandle(text:string,from:string,sock:any,msg
     //   reply(`Give youtube link!`);
     //   return;
     // }
-    let infoYt = await ytdl.getInfo(urlYt, ytOptions);
+    let infoYt = await ytdl.getInfo(urlYt, {agent: ytOptions});
     //30 MIN
     const period:any=infoYt.videoDetails.lengthSeconds
     if (period >= 1800) {
@@ -707,7 +707,7 @@ export async function downloadYtAudioHandle(text:string,from:string,sock:any,msg
     //     reply(`Give youtube link!`);
     //     return;
     // }
-    let infoYt = await ytdl.getInfo(urlYt, ytOptions);
+    let infoYt = await ytdl.getInfo(urlYt, {agent: ytOptions});
     const period:any=infoYt.videoDetails.lengthSeconds
     //30 MIN
     if (period >= 1800) {
